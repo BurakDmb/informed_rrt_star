@@ -2,7 +2,7 @@
 # file 'LICENSE', which is part of this source code package.
 import numpy as np
 import sys
-sys.path.append('../../../rrt-algorithms')
+sys.path.append('../..')
 
 # Note that "# noqa: E402" is the flake8 command to
 # ignore this "Module level import error"

@@ -2,7 +2,7 @@
 # file 'LICENSE', which is part of this source code package.
 import numpy as np
 import sys
-sys.path.append('../../../rrt-algorithms')
+sys.path.append('../..')
 
 from src.rrt.rrt import RRT  # noqa: E402
 from src.search_space.search_space import SearchSpace  # noqa: E402
