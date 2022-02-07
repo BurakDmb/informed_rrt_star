@@ -7,19 +7,18 @@ sys.path.append('../..')
 from src.rrt.informed_rrt_star import InformedRRTStar  # noqa: E402
 from src.search_space.search_space import SearchSpace  # noqa: E402
 from src.utilities.plotting import Plot  # noqa: E402
+from src.utilities.obstacle_generation \
+    import generate_random_obstacles  # noqa: E402
 
-# Problem 2 - Single Obstacle
+# Problem 1 - Randomly generated N obstacles
 
 L = 100
-w = 10
-dgoal = 80
+N = 50
 
 X_dimensions = np.array([(0, L), (0, L)])  # dimensions of Search Space
 
-Obstacles = np.array([
-    (L//2 - w//2, L//2 - w//2, L//2 + w//2, L//2 + w//2)])
-x_init = ((L-dgoal)//2, L//2)  # starting location
-x_goal = ((L+dgoal)//2, L//2)  # goal location
+x_init = (0, 0)  # starting location
+x_goal = (100, 100)  # goal location
 
 Q = np.array([(8, 4)])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
@@ -28,8 +27,9 @@ rewire_count = 32  # optional, number of nearby branches to rewire
 prc = 0.1  # probability of checking for a connection to goal
 
 # create Search Space
-X = SearchSpace(X_dimensions, Obstacles)
+X = SearchSpace(X_dimensions)
 
+Obstacles = generate_random_obstacles(X, x_init, x_goal, N)
 # create rrt_search
 rrt = InformedRRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
 path = rrt.rrt_star()
