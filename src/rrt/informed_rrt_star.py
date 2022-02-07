@@ -7,11 +7,11 @@ from src.rrt.heuristics import segment_cost, path_cost
 from src.rrt.rrt import RRT
 
 
-class RRTStar(RRT):
+class InformedRRTStar(RRT):
     def __init__(self, X, Q, x_init, x_goal, max_samples,
                  r, prc=0.01, rewire_count=None):
         """
-        RRT* Search
+        Informed RRT* Search
         :param X: Search Space
         :param Q: list of lengths of edges added to tree
         :param x_init: tuple, initial location
