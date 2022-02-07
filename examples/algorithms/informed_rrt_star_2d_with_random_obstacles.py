@@ -4,7 +4,6 @@ import numpy as np
 import sys
 sys.path.append('../..')
 
-
 from src.rrt.informed_rrt_star import InformedRRTStar  # noqa: E402
 from src.search_space.search_space import SearchSpace  # noqa: E402
 from src.utilities.obstacle_generation \
