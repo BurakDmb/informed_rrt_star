@@ -108,6 +108,9 @@ class InformedRRTStar(RRT):
                 # iterate over number of edges of given length to add
                 for i in range(q[1]):
                     x_new, x_nearest = self.new_and_near(0, q)
+
+                    # If x_new is none, then it is not collision free,
+                    # therefore continue'ing the execution.
                     if x_new is None:
                         continue
 

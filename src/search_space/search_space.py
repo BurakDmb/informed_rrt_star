@@ -49,6 +49,18 @@ class SearchSpace(object):
         """
         return self.obs.count(x) == 0
 
+    # Informed RRT* Algorithm Sample Function
+    def informed_rrt_sample(self):
+        """
+        Informed RRT Sample Function
+        :return: sample location within X_free
+        """
+        # while True:  # sample until not inside of an obstacle
+        #     x = self.sample()
+        #     if self.obstacle_free(x):
+        #         return x
+        pass
+
     def sample_free(self):
         """
         Sample a location within X_free

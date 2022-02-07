@@ -8,13 +8,18 @@ from src.rrt.informed_rrt_star import InformedRRTStar  # noqa: E402
 from src.search_space.search_space import SearchSpace  # noqa: E402
 from src.utilities.plotting import Plot  # noqa: E402
 
-X_dimensions = np.array([(0, 100), (0, 100)])  # dimensions of Search Space
-# obstacles
+# Problem 1
+
+L = 100
+w = 10
+dgoal = 80
+
+X_dimensions = np.array([(0, L), (0, L)])  # dimensions of Search Space
+
 Obstacles = np.array([
-    (20, 20, 40, 40), (20, 60, 40, 80),
-    (60, 20, 80, 40), (60, 60, 80, 80)])
-x_init = (0, 0)  # starting location
-x_goal = (100, 100)  # goal location
+    (L//2 - w//2, L//2 - w//2, L//2 + w//2, L//2 + w//2)])
+x_init = ((L-dgoal)//2, L//2)  # starting location
+x_goal = ((L+dgoal)//2, L//2)  # goal location
 
 Q = np.array([(8, 4)])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
@@ -30,7 +35,7 @@ rrt = InformedRRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
 path = rrt.rrt_star()
 
 # plot
-plot = Plot("Informed_rrt_star_2d")
+plot = Plot("Informed_rrt_star_2d", dimension_sizes=(0, L, 0, L))
 plot.plot_tree(X, rrt.trees)
 if path is not None:
     plot.plot_path(X, path)

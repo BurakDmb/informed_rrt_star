@@ -8,7 +8,7 @@ colors = ['darkblue', 'teal']
 
 
 class Plot(object):
-    def __init__(self, filename):
+    def __init__(self, filename, dimension_sizes=None):
         """
         Create a plot
         :param filename: filename
@@ -18,6 +18,17 @@ class Plot(object):
         self.layout = {'title': 'Plot',
                        'showlegend': False
                        }
+
+        # Added for fixing dimension size.
+        if dimension_sizes:
+            dimension_sizes = (
+                dimension_sizes[0], dimension_sizes[1],
+                dimension_sizes[2], dimension_sizes[3])
+            self.layout = {'title': 'Plot',
+                           'showlegend': False,
+                           'xaxis': dict(range=[0, 100]),
+                           'yaxis': dict(range=[0, 100])
+                           }
 
         self.fig = {'data': self.data,
                     'layout': self.layout}
