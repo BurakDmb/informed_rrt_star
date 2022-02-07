@@ -20,11 +20,11 @@ X_dimensions = np.array([(0, L), (0, L)])  # dimensions of Search Space
 x_init = (0, 0)  # starting location
 x_goal = (100, 100)  # goal location
 
-Q = np.array([(8, 4)])  # length of tree edges
+Q = np.array([(4, 4)])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
-max_samples = 1024  # max number of samples to take before timing out
+max_samples = 1024*1024  # max number of samples to take before timing out
 rewire_count = 32  # optional, number of nearby branches to rewire
-prc = 0.1  # probability of checking for a connection to goal
+prc = 0.0  # probability of checking for a connection to goal
 
 # create Search Space
 X = SearchSpace(X_dimensions)
