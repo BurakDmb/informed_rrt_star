@@ -5,6 +5,7 @@ from operator import itemgetter
 from src.rrt.heuristics import cost_to_go
 from src.rrt.heuristics import segment_cost, path_cost
 from src.rrt.rrt import RRT
+import numpy as np
 
 
 class InformedRRTStar(RRT):
@@ -26,6 +27,11 @@ class InformedRRTStar(RRT):
         self.rewire_count = rewire_count if rewire_count is not None else 0
         self.c_best = float('inf')  # length of best solution thus far
 
+        self.RotationMatrix = self.RotationToWorldFrame(
+            self.x_start, self.x_goal,
+            np.linalg.norm(np.array(x_goal) - np.array(x_init))
+            )
+
     def get_nearby_vertices(self, tree, x_init, x_new):
         """
         Get nearby vertices to new vertex and their associated path costs
@@ -46,6 +52,17 @@ class InformedRRTStar(RRT):
         L_near.sort(key=itemgetter(0))
 
         return L_near
+
+    def RotationToWorldFrame(x_start, x_goal, L):
+        a1 = np.array([[(x_goal[0] - x_start[0]) / L],
+                       [(x_goal[1] - x_start[1]) / L], [0.0]])
+        e1 = np.array([[1.0], [0.0], [0.0]])
+        M = a1 @ e1.T
+        U, _, V_T = np.linalg.svd(M, True, True)
+        C = U @ np.diag(
+            [1.0, 1.0, np.linalg.det(U) * np.linalg.det(V_T.T)]) @ V_T
+
+        return C
 
     def rewire(self, tree, x_new, L_near):
         """
@@ -91,6 +108,10 @@ class InformedRRTStar(RRT):
         # max valid rewire count
         return min(self.trees[tree].V_count, self.rewire_count)
 
+    def InGoalRegion(self, x_new):
+
+        pass
+
     def rrt_star(self):
         """
         Based on algorithm found in: Incremental Sampling-based Algorithms for
@@ -102,12 +123,23 @@ class InformedRRTStar(RRT):
         self.add_vertex(0, self.x_init)
         self.add_edge(0, self.x_init, None)
 
+        self.X_soln = []
+        c_best = float("inf")
+
         while True:
             # iterate over different edge lengths
             for q in self.Q:
                 # iterate over number of edges of given length to add
                 for i in range(q[1]):
-                    x_new, x_nearest = self.informed_new_and_near(0, q)
+
+                    # TODO: implement finding c_best
+                    # if self.X_soln:
+                    #     cost = {node: self.Cost(node) for node in self.X_soln}
+                    #     x_best = min(cost, key=cost.get)
+                    #     c_best = cost[x_best]
+
+                    x_new, x_nearest = self.informed_new_and_near(
+                        0, q, self.RotationMatrix)
 
                     # If x_new is none, then it is not collision free,
                     # therefore continue'ing the execution.
@@ -124,6 +156,9 @@ class InformedRRTStar(RRT):
                     if x_new in self.trees[0].E:
                         # rewire tree
                         self.rewire(0, x_new, L_near)
+
+                    if self.InGoalRegion(x_new):
+                        self.X_soln.append(x_new)
 
                     solution = self.check_solution()
                     if solution[0]:
