@@ -108,9 +108,22 @@ class InformedRRTStar(RRT):
         # max valid rewire count
         return min(self.trees[tree].V_count, self.rewire_count)
 
-    def InGoalRegion(self, x_new):
+    def InGoalRegion(self, x_new, q):
+        dist = np.linalg.norm(np.array(self.x_goal) - np.array(x_new))
+        if dist < q:
+            return True
+        return False
 
-        pass
+    def findCost(self, path):
+        if len(path) == 0:
+            return float("inf")
+
+        path_cost = 0.0
+        for i in range(len(path)-1):
+            node1 = np.array(path[i])
+            node2 = np.array(path[i+1])
+            path_cost += np.linalg.norm(node2-node1)
+        return path_cost
 
     def rrt_star(self):
         """
@@ -127,19 +140,23 @@ class InformedRRTStar(RRT):
         c_best = float("inf")
 
         while True:
+            # TODO: Find the purpose of these loops.
+            # Not exists in the original implementation
+
             # iterate over different edge lengths
             for q in self.Q:
                 # iterate over number of edges of given length to add
                 for i in range(q[1]):
 
-                    # TODO: implement finding c_best
-                    # if self.X_soln:
-                    #     cost = {node: self.Cost(node) for node in self.X_soln}
-                    #     x_best = min(cost, key=cost.get)
-                    #     c_best = cost[x_best]
+                    # TODO: implement finding c_best, needs testing
+                    if self.X_soln:
+                        cost = {
+                            path: self.findCost(path) for path in self.X_soln}
+                        x_best = min(cost, key=cost.get)
+                        c_best = cost[x_best]
 
                     x_new, x_nearest = self.informed_new_and_near(
-                        0, q, self.RotationMatrix)
+                        0, q, c_best, self.RotationMatrix)
 
                     # If x_new is none, then it is not collision free,
                     # therefore continue'ing the execution.
@@ -157,8 +174,8 @@ class InformedRRTStar(RRT):
                         # rewire tree
                         self.rewire(0, x_new, L_near)
 
-                    if self.InGoalRegion(x_new):
-                        self.X_soln.append(x_new)
+                    if self.InGoalRegion(x_new, q):
+                        self.X_soln.append(self.get_path)
 
                     solution = self.check_solution()
                     if solution[0]:

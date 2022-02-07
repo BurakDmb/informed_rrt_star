@@ -74,7 +74,7 @@ class RRTBase(object):
         """
         return next(self.nearby(tree, x, 1))
 
-    def informed_new_and_near(self, tree, q, rotationMatrix):
+    def informed_new_and_near(self, tree, q, c_best, rotationMatrix):
         """
         Return a new steered vertex and the vertex in tree that is nearest
         :param tree: int, tree being searched
@@ -83,7 +83,7 @@ class RRTBase(object):
         nearest vertex in tree to new vertex
         """
         x_rand = self.X.informed_rrt_sample(
-            self.x_init, self.x_goal, 0, rotationMatrix)
+            self.x_init, self.x_goal, c_best, rotationMatrix)
         x_nearest = self.get_nearest(tree, x_rand)
         x_new = self.bound_point(steer(x_nearest, x_rand, q[0]))
         # check if new point is in X_free and not already in V
