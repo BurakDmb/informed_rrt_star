@@ -135,13 +135,17 @@ class RRTBase(object):
         """
         x_nearest = self.get_nearest(tree, self.x_goal)
         if self.x_goal in self.trees[tree].E \
-                and x_nearest in self.trees[tree].E[self.x_goal]:
+                and x_nearest == self.trees[tree].E[self.x_goal]:
             # tree is already connected to goal using nearest vertex
             return True
 
-        # check if obstacle-free
-        if self.X.collision_free(x_nearest, self.x_goal, self.r):
-            return True
+        if (np.linalg.norm(
+                np.array(self.x_goal) - np.array(x_nearest)) < self.Q).all():
+
+            # check if obstacle-free
+            if self.X.collision_free(x_nearest, self.x_goal, self.r):
+                return True
+
         return False
 
     def get_path(self):
@@ -185,20 +189,38 @@ class RRTBase(object):
         path.reverse()
         return path
 
-    def check_solution(self):
-        # probabilistically check if solution found
-        if self.prc and random.random() < self.prc:
-            # print(
-            #     "Checking if can connect to goal at",
-            #     str(self.samples_taken), "samples")
-
+    def check_solution(
+            self, optimal_cost=None, percentage_of_optimal_cost=0.01):
+        if optimal_cost is not None:
             path = self.get_path()
             if path is not None:
-                return True, path
-        # check if can connect to goal after generating max_samples
-        if self.samples_taken >= self.max_samples:
-            return True, self.get_path()
-        return False, None
+
+                path_cost = 0.0
+                for i in range(len(path)-1):
+                    node1 = np.array(path[i])
+                    node2 = np.array(path[i+1])
+                    path_cost += np.linalg.norm(node2-node1)
+                if np.abs((path_cost / optimal_cost)
+                          - 1) < percentage_of_optimal_cost:
+                    return True, path
+                else:
+                    return False, None
+            else:
+                return False, None
+        else:
+            # probabilistically check if solution found
+            if self.prc and random.random() < self.prc:
+                # print(
+                #     "Checking if can connect to goal at",
+                #     str(self.samples_taken), "samples")
+
+                path = self.get_path()
+                if path is not None:
+                    return True, path
+            # check if can connect to goal after generating max_samples
+            if self.samples_taken >= self.max_samples:
+                return True, self.get_path()
+            return False, None
 
     def bound_point(self, point):
         # if point is out-of-bounds, set to bound

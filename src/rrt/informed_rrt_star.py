@@ -1,5 +1,3 @@
-# This file is subject to the terms and conditions defined in
-# file 'LICENSE', which is part of this source code package.
 from operator import itemgetter
 
 from src.rrt.heuristics import cost_to_go
@@ -28,7 +26,7 @@ class InformedRRTStar(RRT):
         self.c_best = float('inf')  # length of best solution thus far
 
         self.RotationMatrix = self.RotationToWorldFrame(
-            self.x_start, self.x_goal,
+            self.x_init, self.x_goal,
             np.linalg.norm(np.array(x_goal) - np.array(x_init))
             )
 
@@ -53,15 +51,21 @@ class InformedRRTStar(RRT):
 
         return L_near
 
-    def RotationToWorldFrame(x_start, x_goal, L):
-        a1 = np.array([[(x_goal[0] - x_start[0]) / L],
-                       [(x_goal[1] - x_start[1]) / L], [0.0]])
-        e1 = np.array([[1.0], [0.0], [0.0]])
-        M = a1 @ e1.T
-        U, _, V_T = np.linalg.svd(M, True, True)
-        C = U @ np.diag(
-            [1.0, 1.0, np.linalg.det(U) * np.linalg.det(V_T.T)]) @ V_T
-
+    def RotationToWorldFrame(self, x_start, x_goal, L):
+        dim = 2
+        # Transverse axis of the ellipsoid in the world frame
+        E1 = (np.array(x_goal) - np.array(x_start)) / L
+        # first basis vector of the world frame [1,0,0,...]
+        W1 = [1]+[0]*(dim - 1)
+        # outer product of E1 and W1
+        M = np.outer(E1, W1)
+        # SVD decomposition od outer product
+        U, S, V = np.linalg.svd(M)
+        # Calculate the middle diagonal matrix
+        middleM = np.eye(dim)
+        middleM[-1, -1] = np.linalg.det(U)*np.linalg.det(V)
+        # calculate the rotation matrix
+        C = U@middleM@V.T
         return C
 
     def rewire(self, tree, x_new, L_near):
@@ -110,22 +114,31 @@ class InformedRRTStar(RRT):
 
     def InGoalRegion(self, x_new, q):
         dist = np.linalg.norm(np.array(self.x_goal) - np.array(x_new))
-        if dist < q:
+        if (dist < q).all():
             return True
         return False
 
-    def findCost(self, path):
-        if len(path) == 0:
+    def findCost(self, X_soln):
+        if len(X_soln) == 0:
             return float("inf")
 
-        path_cost = 0.0
-        for i in range(len(path)-1):
-            node1 = np.array(path[i])
-            node2 = np.array(path[i+1])
-            path_cost += np.linalg.norm(node2-node1)
-        return path_cost
+        minimum_cost = float("inf")
+        minimum_path = []
+        for solution in X_soln:
 
-    def rrt_star(self):
+            path_cost = 0.0
+            for i in range(len(solution)-1):
+                node1 = np.array(solution[i])
+                node2 = np.array(solution[i+1])
+                path_cost += np.linalg.norm(node2-node1)
+
+            if path_cost < minimum_cost:
+                minimum_cost = path_cost
+                minimum_path = solution
+        return minimum_path, minimum_cost
+
+    def rrt_star(
+            self, optimal_cost=None, percentage_of_optimal_cost=0.01):
         """
         Based on algorithm found in: Incremental Sampling-based Algorithms for
         Optimal Motion Planning
@@ -139,44 +152,43 @@ class InformedRRTStar(RRT):
         self.X_soln = []
         c_best = float("inf")
 
+        # TODO: Remove
+        self.new_Q = self.Q
         while True:
             # TODO: Find the purpose of these loops.
             # Not exists in the original implementation
 
-            # iterate over different edge lengths
-            for q in self.Q:
-                # iterate over number of edges of given length to add
-                for i in range(q[1]):
+            if self.X_soln:
+                _, c_best = self.findCost(self.X_soln)
 
-                    # TODO: implement finding c_best, needs testing
-                    if self.X_soln:
-                        cost = {
-                            path: self.findCost(path) for path in self.X_soln}
-                        x_best = min(cost, key=cost.get)
-                        c_best = cost[x_best]
+            x_new, x_nearest = self.informed_new_and_near(
+                0, self.new_Q, c_best, self.RotationMatrix)
 
-                    x_new, x_nearest = self.informed_new_and_near(
-                        0, q, c_best, self.RotationMatrix)
+            # If x_new is none, then it is not collision free,
+            # therefore continue'ing the execution.
+            if x_new is None:
+                continue
 
-                    # If x_new is none, then it is not collision free,
-                    # therefore continue'ing the execution.
-                    if x_new is None:
-                        continue
+            elif not self.X.collision_free(
+                    x_nearest, x_new, self.r):
+                continue
 
-                    # get nearby vertices and cost-to-come
-                    L_near = self.get_nearby_vertices(0, self.x_init, x_new)
+            # get nearby vertices and cost-to-come
+            L_near = self.get_nearby_vertices(0, self.x_init, x_new)
 
-                    # check nearby vertices for total cost and
-                    # connect shortest valid edge
-                    self.connect_shortest_valid(0, x_new, L_near)
+            # check nearby vertices for total cost and
+            # connect shortest valid edge
+            self.connect_shortest_valid(0, x_new, L_near)
 
-                    if x_new in self.trees[0].E:
-                        # rewire tree
-                        self.rewire(0, x_new, L_near)
+            if x_new in self.trees[0].E:
+                # rewire tree
+                self.rewire(0, x_new, L_near)
 
-                    if self.InGoalRegion(x_new, q):
-                        self.X_soln.append(self.get_path)
+            if self.InGoalRegion(x_new, self.new_Q):
+                self.X_soln.append(self.get_path())
 
-                    solution = self.check_solution()
-                    if solution[0]:
-                        return solution[1]
+            solution = self.check_solution(
+                optimal_cost=optimal_cost,
+                percentage_of_optimal_cost=percentage_of_optimal_cost)
+            if solution[0]:
+                return solution[1]

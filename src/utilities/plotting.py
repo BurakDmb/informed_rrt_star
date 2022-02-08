@@ -1,6 +1,3 @@
-# This file is subject to the terms and conditions defined in
-# file 'LICENSE', which is part of this source code package.
-
 import plotly as py
 from plotly import graph_objs as go
 

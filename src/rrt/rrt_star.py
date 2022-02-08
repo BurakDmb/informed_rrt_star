@@ -1,5 +1,3 @@
-# This file is subject to the terms and conditions defined in
-# file 'LICENSE', which is part of this source code package.
 from operator import itemgetter
 
 from src.rrt.heuristics import cost_to_go
@@ -91,7 +89,7 @@ class RRTStar(RRT):
         # max valid rewire count
         return min(self.trees[tree].V_count, self.rewire_count)
 
-    def rrt_star(self):
+    def rrt_star(self, optimal_cost=None, percentage_of_optimal_cost=0.01):
         """
         Based on algorithm found in: Incremental Sampling-based Algorithms for
         Optimal Motion Planning
@@ -103,25 +101,26 @@ class RRTStar(RRT):
         self.add_edge(0, self.x_init, None)
 
         while True:
-            # iterate over different edge lengths
-            for q in self.Q:
-                # iterate over number of edges of given length to add
-                for i in range(q[1]):
-                    x_new, x_nearest = self.new_and_near(0, q)
-                    if x_new is None:
-                        continue
+            x_new, x_nearest = self.new_and_near(0, self.Q)
+            if x_new is None:
+                continue
+            elif not self.X.collision_free(
+                    x_nearest, x_new, self.r):
+                continue
 
-                    # get nearby vertices and cost-to-come
-                    L_near = self.get_nearby_vertices(0, self.x_init, x_new)
+            # get nearby vertices and cost-to-come
+            L_near = self.get_nearby_vertices(0, self.x_init, x_new)
 
-                    # check nearby vertices for total cost and
-                    # connect shortest valid edge
-                    self.connect_shortest_valid(0, x_new, L_near)
+            # check nearby vertices for total cost and
+            # connect shortest valid edge
+            self.connect_shortest_valid(0, x_new, L_near)
 
-                    if x_new in self.trees[0].E:
-                        # rewire tree
-                        self.rewire(0, x_new, L_near)
+            if x_new in self.trees[0].E:
+                # rewire tree
+                self.rewire(0, x_new, L_near)
 
-                    solution = self.check_solution()
-                    if solution[0]:
-                        return solution[1]
+            solution = self.check_solution(
+                optimal_cost=optimal_cost,
+                percentage_of_optimal_cost=percentage_of_optimal_cost)
+            if solution[0]:
+                return solution[1]

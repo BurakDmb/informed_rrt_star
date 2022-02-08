@@ -1,5 +1,3 @@
-# This file is subject to the terms and conditions defined in
-# file 'LICENSE', which is part of this source code package.
 import numpy as np
 import sys
 sys.path.append('../..')
@@ -15,7 +13,7 @@ X_dimensions = np.array([(0, 100), (0, 100)])  # dimensions of Search Space
 x_init = (0, 0)  # starting location
 x_goal = (100, 100)  # goal location
 
-Q = np.array([(8, 4)])  # length of tree edges
+Q = np.array([8, 4])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
 max_samples = 1024  # max number of samples to take before timing out
 rewire_count = 32  # optional, number of nearby branches to rewire
