@@ -189,38 +189,60 @@ class RRTBase(object):
         path.reverse()
         return path
 
+    # This function calculates the cost of the given path array.
+    # Path array is simply list of states connecting from start to goal
+    def calculate_cost_of_path(self, path):
+        if path is None:
+            return np.nan
+        else:
+            path_cost = 0.0
+            for i in range(len(path)-1):
+                node1 = np.array(path[i])
+                node2 = np.array(path[i+1])
+                path_cost += np.linalg.norm(node2-node1)
+            return path_cost
+
     def check_solution(
-            self, optimal_cost=None, percentage_of_optimal_cost=0.01):
+            self, optimal_cost=None, percentage_of_optimal_cost=0.01,
+            record_cost_per_timestep=False):
         if optimal_cost is not None:
             path = self.get_path()
             if path is not None:
 
-                path_cost = 0.0
-                for i in range(len(path)-1):
-                    node1 = np.array(path[i])
-                    node2 = np.array(path[i+1])
-                    path_cost += np.linalg.norm(node2-node1)
-                if np.abs((path_cost / optimal_cost)
-                          - 1) < percentage_of_optimal_cost:
-                    return True, path
+                path_cost = self.calculate_cost_of_path(path)
+                cost_percent = np.abs((path_cost / optimal_cost) - 1)
+                if cost_percent < percentage_of_optimal_cost:
+                    resultSolutionExists, resultSolution,\
+                        resultPathCost = True, path, path_cost
                 else:
-                    return False, None
+                    resultSolutionExists, resultSolution,\
+                        resultPathCost = False, path, path_cost
             else:
-                return False, None
+                resultSolutionExists, resultSolution,\
+                    resultPathCost = False, None, np.nan
         else:
             # probabilistically check if solution found
             if self.prc and random.random() < self.prc:
-                # print(
-                #     "Checking if can connect to goal at",
-                #     str(self.samples_taken), "samples")
-
                 path = self.get_path()
                 if path is not None:
-                    return True, path
+                    resultSolutionExists, resultSolution,\
+                        resultPathCost = True, path, np.nan
+                else:
+                    resultSolutionExists, resultSolution, \
+                        resultPathCost = False, None, np.nan
             # check if can connect to goal after generating max_samples
-            if self.samples_taken >= self.max_samples:
-                return True, self.get_path()
-            return False, None
+            elif self.samples_taken >= self.max_samples:
+                path = self.get_path()
+                resultSolutionExists, resultSolution,\
+                    resultPathCost = True, \
+                    path, self.calculate_cost_of_path(path)
+            else:
+                path = self.get_path()
+                resultSolutionExists, resultSolution, \
+                    resultPathCost = False, None,\
+                    self.calculate_cost_of_path(path)
+
+        return resultSolutionExists, resultSolution, resultPathCost
 
     def bound_point(self, point):
         # if point is out-of-bounds, set to bound

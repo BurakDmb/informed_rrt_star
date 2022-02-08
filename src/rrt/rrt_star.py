@@ -100,6 +100,7 @@ class RRTStar(RRT):
         self.add_vertex(0, self.x_init)
         self.add_edge(0, self.x_init, None)
 
+        self.cost_versus_time_list = []
         while True:
             x_new, x_nearest = self.new_and_near(0, self.Q)
             if x_new is None:
@@ -122,5 +123,9 @@ class RRTStar(RRT):
             solution = self.check_solution(
                 optimal_cost=optimal_cost,
                 percentage_of_optimal_cost=percentage_of_optimal_cost)
+
+            # Cost versus time plot data gathering
+            self.cost_versus_time_list.append(solution[2])
+
             if solution[0]:
                 return solution[1]

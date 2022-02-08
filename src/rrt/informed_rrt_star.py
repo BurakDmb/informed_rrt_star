@@ -152,8 +152,7 @@ class InformedRRTStar(RRT):
         self.X_soln = []
         c_best = float("inf")
 
-        # TODO: Remove
-        self.new_Q = self.Q
+        self.cost_versus_time_list = []
         while True:
             # TODO: Find the purpose of these loops.
             # Not exists in the original implementation
@@ -162,7 +161,7 @@ class InformedRRTStar(RRT):
                 _, c_best = self.findCost(self.X_soln)
 
             x_new, x_nearest = self.informed_new_and_near(
-                0, self.new_Q, c_best, self.RotationMatrix)
+                0, self.Q, c_best, self.RotationMatrix)
 
             # If x_new is none, then it is not collision free,
             # therefore continue'ing the execution.
@@ -184,11 +183,15 @@ class InformedRRTStar(RRT):
                 # rewire tree
                 self.rewire(0, x_new, L_near)
 
-            if self.InGoalRegion(x_new, self.new_Q):
+            if self.InGoalRegion(x_new, self.Q):
                 self.X_soln.append(self.get_path())
 
             solution = self.check_solution(
                 optimal_cost=optimal_cost,
                 percentage_of_optimal_cost=percentage_of_optimal_cost)
+
+            # Cost versus time plot data gathering
+            self.cost_versus_time_list.append(solution[2])
+
             if solution[0]:
                 return solution[1]
