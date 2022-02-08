@@ -38,10 +38,11 @@ X = SearchSpace(X_dimensions, seed=0)
 Obstacles = generate_random_obstacles(X, x_init, x_goal, N)
 
 # Parallel executing
-parallel_count = 1
+parallel_count = 16
 informed_rrt_star_results = []
 rrt_star_results = []
 
+informed_path_cost_list = []
 for run_id in range(parallel_count):
     informed_rrt = InformedRRTStar(
         X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
@@ -60,8 +61,15 @@ for run_id in range(parallel_count):
         informed_rrt_star_path_cost += np.linalg.norm(node2-node1)
     print("Informed RRT* path cost: ", informed_rrt_star_path_cost)
     informed_rrt_star_results.append(informed_rrt.cost_versus_time_list)
-    #
 
+    informed_path_cost_list.append(informed_rrt_star_path_cost)
+# Changing optimal path cost from None to the mean of the runs,
+# disabling the sample time exit condition.
+
+optimal_path_cost = np.mean(informed_path_cost_list)
+ptc_opt_cost = 0.01
+
+for run_id in range(parallel_count):
     print("Starting RRT Star Search")
     rrt = RRTStar(
         X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
@@ -82,8 +90,8 @@ for run_id in range(parallel_count):
     rrt_star_results.append(rrt.cost_versus_time_list)
 
 print("Experiments have been completed. Results: ")
-print("informed_rrt_star_results: ", informed_rrt_star_results)
-print("rrt_star_results:", rrt_star_results)
+# print("informed_rrt_star_results: ", informed_rrt_star_results)
+# print("rrt_star_results:", rrt_star_results)
 
 with open('results/experiment4_random_cost_informed_results.pkl', 'wb') as f:
     pickle.dump(informed_rrt_star_results, f)
