@@ -16,22 +16,23 @@ values = {
 save_name = "results/experiment3_figure.pdf"
 fig, ax = plt.subplots()
 color = iter(cm.brg(np.linspace(0, 1, len(keys))))
-ax.set_xlabel("Gap height as percentage of total wall height, hg/h (%)")
+ax.set_xlabel("Target path cost as a percentage" +
+              " above optimal cost, cbest/c* (%)")
 ax.set_ylabel("CPU Time(seconds)")
 lines = []
 
 
 optimal_percentages = [
-    3.0, 2.8, 2.6, 2.4, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.2, 1.0]
+    3.0, 2.8, 2.6, 2.4, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.0]
 
 for key in keys:
 
     valuesList = values[key]
     numberOfExperiments = len(valuesList)
     maxLength = np.max(np.array
-                       ([len(valueList) for valueList in valuesList]))
+                       ([len(value) for key, value in valuesList.items()]))
     x = np.array(optimal_percentages)
-    extendList = np.array([None] * maxLength)
+    extendList = np.array([None] * len(optimal_percentages))
 
     for i in range(len(optimal_percentages)):
         map_key = optimal_percentages[i]
@@ -42,11 +43,12 @@ for key in keys:
         extendList[i] = extend
 
     y = np.stack(extendList, axis=0)
-    ci = 1.96 * np.nanstd(y, axis=0)/np.sqrt((numberOfExperiments))
-    mean_y = np.nanmean(y, axis=0)
+    ci = 1.96 * np.nanstd(y, axis=1)/np.sqrt((numberOfExperiments))
+    mean_y = np.nanmean(y, axis=1)
 
     c = next(color)
     line, = ax.plot(x, mean_y, color=c)
+    plt.xlim(max(x), min(x))
     lines.append(line)
     ax.fill_between(x, (mean_y-ci), (mean_y+ci), color=c, alpha=.1)
 

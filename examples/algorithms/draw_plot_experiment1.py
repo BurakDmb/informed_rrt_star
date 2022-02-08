@@ -27,10 +27,13 @@ for key in keys:
 
     valuesList = values[key]
     numberOfExperiments = len(valuesList)
+    # maxLength = np.max(np.array
+    #                    ([len(valueList) for valueList in valuesList]))
     maxLength = np.max(np.array
-                       ([len(valueList) for valueList in valuesList]))
+                       ([len(value) for key, value in valuesList.items()]))
     x = np.array(map_width_rates)
-    extendList = np.array([None] * maxLength)
+    # extendList = np.array([None] * maxLength)
+    extendList = np.array([None] * len(map_width_rates))
 
     for i in range(len(map_width_rates)):
         map_key = map_width_rates[i]
@@ -41,8 +44,10 @@ for key in keys:
         extendList[i] = extend
 
     y = np.stack(extendList, axis=0)
-    ci = 1.96 * np.nanstd(y, axis=0)/np.sqrt((numberOfExperiments))
-    mean_y = np.nanmean(y, axis=0)
+    # ci = 1.96 * np.nanstd(y, axis=0)/np.sqrt((numberOfExperiments))
+    # mean_y = np.nanmean(y, axis=0)
+    ci = 1.96 * np.nanstd(y, axis=1)/np.sqrt((numberOfExperiments))
+    mean_y = np.nanmean(y, axis=1)
 
     c = next(color)
     line, = ax.plot(x, mean_y, color=c)

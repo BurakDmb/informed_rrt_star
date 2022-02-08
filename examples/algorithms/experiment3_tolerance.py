@@ -11,7 +11,7 @@ from src.search_space.search_space import SearchSpace  # noqa: E402
 
 # 12*16*2 = 384 combination
 optimal_percentages = [
-    3.0, 2.8, 2.6, 2.4, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.2, 1.0]
+    3.0, 2.8, 2.6, 2.4, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.0]
 parallel_count = 16
 
 informed_rrt_star_results = dict((el, []) for el in optimal_percentages)
