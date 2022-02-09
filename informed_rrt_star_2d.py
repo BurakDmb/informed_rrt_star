@@ -1,9 +1,6 @@
 import numpy as np
-import sys
-sys.path.append('../..')
 
-
-from src.rrt.rrt_star import RRTStar  # noqa: E402
+from src.rrt.informed_rrt_star import InformedRRTStar  # noqa: E402
 from src.search_space.search_space import SearchSpace  # noqa: E402
 from src.utilities.plotting import Plot  # noqa: E402
 
@@ -19,17 +16,17 @@ Q = np.array([2, 2])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
 max_samples = 1024  # max number of samples to take before timing out
 rewire_count = 32  # optional, number of nearby branches to rewire
-prc = 0.0  # probability of checking for a connection to goal
+prc = 0.1  # probability of checking for a connection to goal
 
 # create Search Space
 X = SearchSpace(X_dimensions, Obstacles)
 
 # create rrt_search
-rrt = RRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
+rrt = InformedRRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
 path = rrt.rrt_star()
 
 # plot
-plot = Plot("rrt_star_2d")
+plot = Plot("Informed_rrt_star_2d")
 plot.plot_tree(X, rrt.trees)
 if path is not None:
     plot.plot_path(X, path)

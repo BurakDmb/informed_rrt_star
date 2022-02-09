@@ -8,5 +8,4 @@ Installation:
 
 
 Usage:
-- `cd examples/algorithms`
-- `python rrt_<File To Execute>.py`
+- `python <File To Execute>.py`

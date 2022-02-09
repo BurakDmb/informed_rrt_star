@@ -1,8 +1,6 @@
 import numpy as np
 import time
 import pickle
-import sys
-sys.path.append('../..')
 
 from src.rrt.informed_rrt_star import InformedRRTStar  # noqa: E402
 from src.rrt.rrt_star import RRTStar  # noqa: E402
