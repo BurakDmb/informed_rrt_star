@@ -22,7 +22,7 @@ for gap_height_rate in gap_height_rates:
     L = 100
     T = 10
     dgoal = 80
-    h = 50
+    h = 80
     yg = 30
     hg_h = gap_height_rate*0.01
     hg = h*hg_h
