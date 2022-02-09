@@ -21,7 +21,7 @@ x_goal = (L, L/2)  # goal location
 
 Q = np.array([4, 4])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
-max_samples = 1024*2  # max number of samples to take before timing out
+max_samples = 1024*4  # max number of samples to take before timing out
 rewire_count = 32  # optional, number of nearby branches to rewire
 prc = 0.0  # probability of checking for a connection to goal
 

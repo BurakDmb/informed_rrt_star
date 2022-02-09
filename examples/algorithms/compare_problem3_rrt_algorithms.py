@@ -28,7 +28,7 @@ Obstacles = np.array([
 x_init = ((L-dgoal)/2, L/2)  # starting location
 x_goal = ((L+dgoal)/2, L/2)  # goal location
 
-Q = np.array([20, 20])  # length of tree edges
+Q = np.array([2, 2])  # length of tree edges
 r = 1  # length of smallest edge to check for intersection with obstacles
 max_samples = 1024*2  # max number of samples to take before timing out
 rewire_count = 32  # optional, number of nearby branches to rewire
@@ -56,7 +56,7 @@ optimal_path_cost = T + 2*np.sqrt(
 # ----- Start Informed RRT Star Search -----
 
 rrt = InformedRRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
-path = rrt.rrt_star(optimal_cost=optimal_path_cost)
+path = rrt.rrt_star()
 
 # plot
 plot = Plot("Informed_rrt_star_2d", dimension_sizes=(0, L, 0, L))
@@ -80,7 +80,7 @@ for i in range(len(path)-1):
 # ----- Start RRT Star Search -----
 # create rrt_search
 rrt = RRTStar(X, Q, x_init, x_goal, max_samples, r, prc, rewire_count)
-path = rrt.rrt_star(optimal_cost=optimal_path_cost)
+path = rrt.rrt_star()
 
 # plot
 plot = Plot("rrt_star_2d", dimension_sizes=(0, L, 0, L))
