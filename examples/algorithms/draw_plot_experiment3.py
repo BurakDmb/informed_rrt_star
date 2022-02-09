@@ -13,7 +13,7 @@ keys = ['informed_rrt_star', 'rrt_star']
 values = {
     'informed_rrt_star': experiment3_tolerance_informed_results,
     'rrt_star': experiment3_tolerance_rrt_results}
-save_name = "results/experiment3_figure.pdf"
+save_name = "results/experiment3_figure.png"
 fig, ax = plt.subplots()
 color = iter(cm.brg(np.linspace(0, 1, len(keys))))
 ax.set_xlabel("Target path cost as a percentage" +
@@ -53,4 +53,4 @@ for key in keys:
     ax.fill_between(x, (mean_y-ci), (mean_y+ci), color=c, alpha=.1)
 
 ax.legend(lines, keys)
-fig.savefig(save_name, format="pdf", bbox_inches="tight")
+fig.savefig(save_name, format="png", bbox_inches="tight")

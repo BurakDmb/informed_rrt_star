@@ -13,7 +13,7 @@ keys = ['informed_rrt_star', 'rrt_star']
 values = {
     'informed_rrt_star': experiment2_gap_height_informed_results,
     'rrt_star': experiment2_gap_height_rrt_results}
-save_name = "results/experiment2_figure.pdf"
+save_name = "results/experiment2_figure.png"
 fig, ax = plt.subplots()
 color = iter(cm.brg(np.linspace(0, 1, len(keys))))
 ax.set_xlabel("Gap height as percentage of total wall height, hg/h (%)")
@@ -56,4 +56,4 @@ for key in keys:
     ax.fill_between(x, (mean_y-ci), (mean_y+ci), color=c, alpha=.1)
 
 ax.legend(lines, keys)
-fig.savefig(save_name, format="pdf", bbox_inches="tight")
+fig.savefig(save_name, format="png", bbox_inches="tight")

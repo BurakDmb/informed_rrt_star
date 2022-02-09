@@ -13,7 +13,7 @@ keys = ['informed_rrt_star', 'rrt_star']
 values = {
     'informed_rrt_star': experiment1_map_informed_results,
     'rrt_star': experiment1_map_rrt_results}
-save_name = "results/experiment1_figure.pdf"
+save_name = "results/experiment1_figure.png"
 fig, ax = plt.subplots()
 color = iter(cm.brg(np.linspace(0, 1, len(keys))))
 ax.set_xlabel("Map width as a factor of the" +
@@ -55,4 +55,4 @@ for key in keys:
     ax.fill_between(x, (mean_y-ci), (mean_y+ci), color=c, alpha=.1)
 
 ax.legend(lines, keys)
-fig.savefig(save_name, format="pdf", bbox_inches="tight")
+fig.savefig(save_name, format="png", bbox_inches="tight")
