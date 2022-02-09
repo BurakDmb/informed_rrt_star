@@ -51,7 +51,7 @@ for gap_height_rate in gap_height_rates:
         (np.max([yg, h-yg-hg, h/2]) - h/2)**2
         )
 
-    Q = np.array([20, 20])  # length of tree edges
+    Q = np.array([2, 2])  # length of tree edges
     r = 1  # length of smallest edge to check for intersection with obstacles
     max_samples = 1024*2  # max number of samples to take before timing out
     rewire_count = 32  # optional, number of nearby branches to rewire
